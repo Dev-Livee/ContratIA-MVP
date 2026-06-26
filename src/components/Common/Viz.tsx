@@ -45,23 +45,74 @@ const POSE_ANIMATION: Record<VizPose, string> = {
 interface VizProps {
   pose: VizPose;
   size?: number | string;
+  /** false = sin recorte circular (ideal para hero sections) */
+  rounded?: boolean;
 }
 
-export default function Viz({ pose, size = 120 }: VizProps) {
+export default function Viz({ pose, size = 120, rounded = true }: VizProps) {
   const pxSize = typeof size === 'number' ? `${size}px` : size;
+  const imageSrc = pose === 'greeting' ? '/viz.png' : `/viz/${pose}.png`;
+
+  if (!rounded) {
+    return (
+      <Box w={pxSize} h={pxSize} flexShrink={0} position="relative">
+        <Box
+          position="absolute"
+          inset="-20px"
+          bgGradient="radial(circle, rgba(74, 222, 128, 0.25) 0%, rgba(74, 222, 128, 0) 70%)"
+          filter="blur(20px)"
+          zIndex={0}
+          pointerEvents="none"
+        />
+        <Image
+          src={imageSrc}
+          alt={`Viz — ${pose}`}
+          w="100%"
+          h="100%"
+          objectFit="contain"
+          animation={POSE_ANIMATION[pose]}
+          draggable={false}
+          loading="eager"
+          position="relative"
+          zIndex={1}
+        />
+      </Box>
+    );
+  }
 
   return (
-    <Box w={pxSize} h={pxSize} flexShrink={0}>
-      <Image
-        src={`/viz/${pose}.png`}
-        alt={`Viz — ${pose}`}
+    <Box w={pxSize} h={pxSize} flexShrink={0} position="relative">
+      <Box
+        position="absolute"
+        inset="-10px"
+        bgGradient="radial(circle, rgba(74, 222, 128, 0.3) 0%, rgba(74, 222, 128, 0) 70%)"
+        filter="blur(10px)"
+        borderRadius="full"
+        zIndex={0}
+      />
+      <Box
+        position="relative"
         w="100%"
         h="100%"
-        objectFit="contain"
-        animation={POSE_ANIMATION[pose]}
-        draggable={false}
-        loading="eager"
-      />
+        borderRadius="full"
+        bgGradient="linear(135deg, #f0fdf4 0%, #ffffff 80%)"
+        p={2}
+        border="1px solid"
+        borderColor="brand.100"
+        boxShadow="0 16px 40px rgba(22, 163, 74, 0.16)"
+        overflow="hidden"
+      >
+        <Image
+          src={imageSrc}
+          alt={`Viz — ${pose}`}
+          w="100%"
+          h="100%"
+          objectFit="contain"
+          animation={POSE_ANIMATION[pose]}
+          draggable={false}
+          loading="eager"
+        />
+      </Box>
     </Box>
   );
 }
