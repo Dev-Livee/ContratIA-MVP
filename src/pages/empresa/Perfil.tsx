@@ -8,6 +8,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { FiPlus, FiSave } from 'react-icons/fi';
 import { useAuth } from '@/context/AuthContext';
+import { useEmpresaPerfil } from '@/components/hooks/useObras';
+import api from '@/services/api';
 import { perfilEmpresaSchema, type PerfilEmpresaSchema } from '@/utils/validators';
 import { RUBROS, REGIONES } from '@/utils/constants';
 
@@ -44,9 +46,19 @@ export default function EmpresaPerfil() {
   };
 
   const onSubmit = async (data: PerfilEmpresaSchema) => {
-    await new Promise(r => setTimeout(r, 700));
-    updateUser({ name: data.representante });
-    toast({ title: 'Perfil actualizado', status: 'success', duration: 2500, position: 'top-right' });
+    try {
+      await api.put('/empresa/perfil', {
+        representanteLegal: data.representante,
+        descripcion: data.descripcion ?? '',
+        telefono: '',
+        sitioWeb: '',
+        sector: 'Construccion',
+      });
+      updateUser({ name: data.representante });
+      toast({ title: 'Perfil actualizado', status: 'success', duration: 2500, position: 'top-right' });
+    } catch {
+      toast({ title: 'Error al guardar', status: 'error', duration: 2500, position: 'top-right' });
+    }
   };
 
   const completeness = Math.min(100, [user?.razonSocial, user?.ruc, rubros.length > 0, regiones.length > 0].filter(Boolean).length * 25);

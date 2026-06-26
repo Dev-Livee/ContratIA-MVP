@@ -5,7 +5,7 @@ import {
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlus, FiSearch } from 'react-icons/fi';
-import { useObras } from '@/components/hooks/useObras';
+import { useProyectosEntidad } from '@/components/hooks/useObras';
 import StatusBadge from '@/components/Common/StatusBadge';
 import { SkeletonTable } from '@/components/Common/SkeletonCard';
 import EmptyState from '@/components/Common/EmptyState';
@@ -17,7 +17,13 @@ export default function Proyectos() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [rubroFilter, setRubroFilter] = useState('');
-  const { data: obras, isLoading } = useObras({ status: statusFilter, rubro: rubroFilter, search });
+  const { data: obras, isLoading } = useProyectosEntidad();
+  const filtered = (obras ?? []).filter(o => {
+    if (statusFilter && o.status !== statusFilter) return false;
+    if (rubroFilter && o.rubro !== rubroFilter) return false;
+    if (search && !o.nombre.toLowerCase().includes(search.toLowerCase()) && !o.codigo.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   return (
     <VStack spacing={5} align="stretch">
@@ -53,7 +59,7 @@ export default function Proyectos() {
 
       {isLoading && <SkeletonTable rows={5} />}
 
-      {!isLoading && (obras ?? []).length === 0 && (
+      {!isLoading && filtered.length === 0 && (
         <EmptyState
           icon={FiSearch}
           title="No tienes proyectos aún"
@@ -63,7 +69,7 @@ export default function Proyectos() {
         />
       )}
 
-      {!isLoading && (obras ?? []).length > 0 && (
+      {!isLoading && filtered.length > 0 && (
         <Box bg="white" borderRadius="xl" borderWidth="1px" borderColor="gray.100" boxShadow="sm" overflow="hidden">
           <Box overflowX="auto">
             <Table variant="simple" size="sm">
@@ -79,7 +85,7 @@ export default function Proyectos() {
                 </Tr>
               </Thead>
               <Tbody>
-                {(obras ?? []).map(o => (
+                {filtered.map(o => (
                   <Tr key={o.id} _hover={{ bg: 'gray.50' }} cursor="pointer"
                     onClick={() => navigate(`/entidad/proyectos/${o.id}`)}>
                     <Td><Text fontSize="xs" fontFamily="mono" color="gray.400">{o.codigo}</Text></Td>

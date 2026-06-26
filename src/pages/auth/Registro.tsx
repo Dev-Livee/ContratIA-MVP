@@ -42,7 +42,7 @@ function StepIndicator({ current }: { current: number }) {
 }
 
 export default function Registro() {
-  const { login } = useAuth();
+  const { login, register: registerAuth } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
   const [step, setStep] = useState(0);
@@ -75,13 +75,21 @@ export default function Registro() {
     setApiError('');
     try {
       setStep(1);
-      await new Promise(r => setTimeout(r, 1000));
+      const role = await registerAuth({
+        tipoCuenta: data.tipoCuenta,
+        ruc: data.ruc,
+        razonSocial: data.razonSocial,
+        correo: data.correo,
+        dniRepresentante: data.dniRepresentante,
+        nombreRepresentante: data.nombreRepresentante,
+        password: data.password,
+      });
       setStep(2);
-      await login(data.correo, data.password);
       await new Promise(r => setTimeout(r, 800));
-      navigate(data.tipoCuenta === 'empresa' ? '/empresa/dashboard' : '/entidad/dashboard');
-    } catch {
-      setApiError('Error al crear la cuenta. Inténtalo nuevamente.');
+      navigate(role === 'company' ? '/empresa/dashboard' : '/entidad/dashboard');
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+      setApiError(msg ?? 'Error al crear la cuenta. Inténtalo nuevamente.');
       setStep(0);
     }
   };

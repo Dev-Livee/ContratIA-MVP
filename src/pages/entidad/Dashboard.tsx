@@ -5,7 +5,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FiCheckCircle, FiClock, FiFolder, FiPlus, FiSearch, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '@/context/AuthContext';
-import { useObras } from '@/components/hooks/useObras';
+import { useProyectosEntidad } from '@/components/hooks/useObras';
 import StatusBadge from '@/components/Common/StatusBadge';
 import { SkeletonTable } from '@/components/Common/SkeletonCard';
 import { formatCurrency } from '@/utils/helpers';
@@ -34,7 +34,7 @@ function StatCard({ label, value, icon, bg = 'brand.100', iconColor = 'brand.700
 export default function EntidadDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { data: obras, isLoading } = useObras();
+  const { data: obras, isLoading } = useProyectosEntidad();
 
   const stats = {
     total: obras?.length ?? 0,

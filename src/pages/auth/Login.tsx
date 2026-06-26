@@ -27,8 +27,7 @@ export default function Login() {
   const onSubmit = async (data: LoginSchema) => {
     setApiError('');
     try {
-      await login(data.email, data.password);
-      const role = data.email.includes('empresa') || data.email.includes('corp') ? 'company' : 'entity';
+      const role = await login(data.email, data.password);
       navigate(role === 'company' ? '/empresa/dashboard' : '/entidad/dashboard');
     } catch {
       setApiError('Credenciales incorrectas. Por favor, inténtalo nuevamente.');

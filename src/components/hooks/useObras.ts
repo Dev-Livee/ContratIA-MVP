@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { QUERY_KEYS } from '@/utils/constants';
+import api from '@/services/api';
 
 export interface Obra {
   id: string;
@@ -184,5 +185,86 @@ export function useObra(id: string) {
       return MOCK_OBRAS.find(o => o.id === id || o.codigo === id) ?? null;
     },
     enabled: !!id,
+  });
+}
+
+// ── Real API hooks ──────────────────────────────────────────────────────────
+
+export interface ProyectoEntidad {
+  id: string;
+  codigo: string | null;
+  titulo: string;
+  rubro: string;
+  distrito: string;
+  region: string;
+  presupuesto: number;
+  estado: string;
+  avanceFisico: number;
+  createdAt: string;
+}
+
+const ESTADO_LABEL: Record<string, string> = {
+  EN_EVALUACION: 'En evaluación',
+  ADJUDICADO: 'Adjudicado',
+  EN_EJECUCION: 'En ejecución',
+  FINALIZADO: 'Finalizado',
+  CANCELADO: 'Cancelado',
+  BORRADOR: 'Borrador',
+};
+
+/** Maps backend ProyectoEntidad → Obra shape so existing UI works without changes */
+function toObra(p: ProyectoEntidad): Obra {
+  return {
+    id: p.id,
+    codigo: p.codigo ?? '',
+    nombre: p.titulo,
+    empresa: '',
+    entidad: '',
+    distrito: p.distrito,
+    region: p.region,
+    rubro: p.rubro,
+    presupuesto: p.presupuesto,
+    fechaInicio: p.createdAt ?? '',
+    fechaFin: '',
+    status: ESTADO_LABEL[p.estado] ?? p.estado,
+    avance: p.avanceFisico ?? 0,
+    descripcion: '',
+    riskScore: 0,
+    hitos: [],
+    fotos: [],
+    documentos: [],
+    historial: [],
+  };
+}
+
+export function useProyectosEntidad() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.PROYECTOS, 'entidad'],
+    queryFn: async (): Promise<Obra[]> => {
+      const { data } = await api.get('/proyectos');
+      return (data as ProyectoEntidad[]).map(toObra);
+    },
+  });
+}
+
+export interface EmpresaPerfil {
+  id: string;
+  ruc: string;
+  razonSocial: string;
+  sector: string;
+  telefono: string;
+  sitioWeb: string;
+  descripcion: string;
+  representanteLegal: string;
+  email: string;
+}
+
+export function useEmpresaPerfil() {
+  return useQuery({
+    queryKey: [QUERY_KEYS.ME],
+    queryFn: async (): Promise<EmpresaPerfil> => {
+      const { data } = await api.get('/empresa/perfil');
+      return data as EmpresaPerfil;
+    },
   });
 }

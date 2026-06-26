@@ -20,6 +20,13 @@ export const statusColor = (status: string): { bg: string; color: string } => {
     'Suspendido': { bg: 'red.100', color: 'red.800' },
     'Borrador': { bg: 'gray.100', color: 'gray.600' },
     'Cancelado': { bg: 'red.100', color: 'red.700' },
+    // Backend enum names
+    'EN_EVALUACION': { bg: 'yellow.100', color: 'yellow.800' },
+    'ADJUDICADO': { bg: 'blue.100', color: 'blue.800' },
+    'EN_EJECUCION': { bg: 'brand.100', color: 'brand.800' },
+    'FINALIZADO': { bg: 'gray.100', color: 'gray.700' },
+    'CANCELADO': { bg: 'red.100', color: 'red.700' },
+    'BORRADOR': { bg: 'gray.100', color: 'gray.600' },
   };
   return map[status] ?? { bg: 'gray.100', color: 'gray.700' };
 };

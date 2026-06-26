@@ -5,6 +5,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { FiAward, FiFileText, FiStar, FiTrendingUp } from 'react-icons/fi';
 import { useAuth } from '@/context/AuthContext';
+import { useEmpresaPerfil } from '@/components/hooks/useObras';
 import StatusBadge from '@/components/Common/StatusBadge';
 import { formatCurrency } from '@/utils/helpers';
 
@@ -31,14 +32,14 @@ function StatBox({ label, value, icon, bg = 'brand.100', iconColor = 'brand.700'
 
 export default function EmpresaDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-
+  const navigate = useNavigate();  const { data: perfil } = useEmpresaPerfil();
+  const nombreEmpresa = perfil?.razonSocial ?? user?.razonSocial ?? user?.name;
   return (
     <VStack spacing={5} align="stretch">
       <Flex justify="space-between" align={{ base: 'flex-start', md: 'center' }} gap={3} flexWrap="wrap">
         <Box>
           <Heading size="lg" color="gray.800" fontWeight="700">Dashboard</Heading>
-          <Text color="gray.500" fontSize="sm">{user?.razonSocial}</Text>
+          <Text color="gray.500" fontSize="sm">{nombreEmpresa}</Text>
         </Box>
         <Button variant="outline" onClick={() => navigate('/empresa/perfil')}>
           Actualizar perfil

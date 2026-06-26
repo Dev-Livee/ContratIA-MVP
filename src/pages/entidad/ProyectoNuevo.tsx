@@ -11,6 +11,7 @@ import { FiArrowLeft, FiArrowRight, FiCheck, FiSave, FiUpload } from 'react-icon
 import { proyectoSchema, type ProyectoSchema } from '@/utils/validators';
 import { DISTRICTS, RUBROS } from '@/utils/constants';
 import { formatCurrency } from '@/utils/helpers';
+import api from '@/services/api';
 
 const STEPS = ['Información', 'Requisitos', 'Confirmar'];
 
@@ -65,13 +66,27 @@ export default function ProyectoNuevo() {
   };
 
   const onSubmit = async (data: ProyectoSchema) => {
-    await new Promise(r => setTimeout(r, 900));
-    toast({
-      title: 'Proyecto publicado exitosamente',
-      description: `"${data.nombre}" está ahora en evaluación.`,
-      status: 'success', duration: 4000, isClosable: true, position: 'top-right',
-    });
-    navigate('/entidad/proyectos');
+    try {
+      const { data: created } = await api.post('/proyectos', {
+        titulo: data.nombre,
+        descripcion: data.descripcion,
+        rubro: data.rubro,
+        distrito: data.distrito,
+        region: 'Lima',
+        presupuesto: data.presupuesto,
+        fechaInicio: data.fechaInicio,
+        fechaFin: data.fechaFin,
+      });
+      await api.put(`/proyectos/${created.id}/estado`, { estado: 'EN_EVALUACION' });
+      toast({
+        title: 'Proyecto publicado exitosamente',
+        description: `"${data.nombre}" está ahora en evaluación.`,
+        status: 'success', duration: 4000, isClosable: true, position: 'top-right',
+      });
+      navigate('/entidad/proyectos');
+    } catch {
+      toast({ title: 'Error al publicar el proyecto', status: 'error', duration: 3000, position: 'top-right' });
+    }
   };
 
   return (
